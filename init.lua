@@ -1,3 +1,5 @@
-require("core.options")
-require("core.keymaps")
-require("core.lazy")
+-- Load core configurations
+require('core.lazy')
+require('core.options')
+require('core.keymaps')
+require('core.autocmds')
