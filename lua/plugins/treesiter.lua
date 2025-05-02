@@ -18,7 +18,8 @@ return {
         "python",
         "c_sharp", -- Add C# parser here
       },
-
+       
+      autotag = { enable = true },
       -- Enable syntax highlighting
       highlight = {
         enable = true,
