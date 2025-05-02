@@ -75,20 +75,17 @@ return {
   },
 
   -- Indent guides
-  {
+ {
   'lukas-reineke/indent-blankline.nvim',
+  version = '^3.0.0', -- Specify version 3+
   config = function()
     require('indent_blankline').setup({
       char = '▏',
       show_current_context = true,
       show_current_context_start = true,
-      filetype_exclude = {
-        'help', 'packer', 'NvimTree', 'TelescopePrompt'
-      },
-      buftype_exclude = { 'terminal', 'nofile' },
     })
   end,
-},
+} ,
 
   -- Startup screen
   {

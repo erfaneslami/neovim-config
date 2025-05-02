@@ -19,7 +19,7 @@ return {
       require('mason').setup()
       require('mason-lspconfig').setup({
         ensure_installed = {
-          'tsserver', 'eslint', 'rust_analyzer', 'gopls',
+          'ts_ls', 'eslint', 'rust_analyzer', 'gopls',
           'clangd', 'omnisharp', 'lua_ls', 'pyright'
         },
         automatic_installation = true,
