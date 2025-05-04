@@ -76,7 +76,7 @@ return {
 
       -- Setup language servers
       local servers = {
-        'tsserver', 'eslint', 'rust_analyzer', 'gopls',
+        'ts_ls', 'eslint', 'rust_analyzer', 'gopls',
         'clangd', 'omnisharp', 'lua_ls', 'pyright'
       }
 
@@ -88,7 +88,7 @@ return {
       end
 
       -- Custom LSP settings
-      lspconfig.tsserver.setup({
+      lspconfig.ts_ls.setup({
         settings = {
           completions = {
             completeFunctionCalls = true

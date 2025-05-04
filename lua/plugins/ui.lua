@@ -76,16 +76,28 @@ return {
 
   -- Indent guides
  {
-  'lukas-reineke/indent-blankline.nvim',
-  version = '^3.0.0', -- Specify version 3+
-  config = function()
-    require('indent_blankline').setup({
-      char = '▏',
-      show_current_context = true,
-      show_current_context_start = true,
-    })
-  end,
-} ,
+  "lukas-reineke/indent-blankline.nvim",
+  event = { "BufReadPost", "BufNewFile" },
+  main = "ibl", -- Use the new IBL API
+  opts = {
+    indent = {
+      char = "│", -- or "▏", "¦", "┊"
+    },
+    scope = {
+      enabled = true,
+      show_start = false,
+      show_end = false,
+      highlight = { "Function", "Label" },
+    },
+    exclude = {
+      filetypes = {
+        "help", "terminal", "lazy", "lspinfo",
+        "TelescopePrompt", "TelescopeResults",
+        "dashboard", "markdown", "alpha",
+      },
+    },
+  },
+},
 
   -- Startup screen
   {
