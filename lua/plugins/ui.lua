@@ -205,7 +205,8 @@ return {
             filetype = "NvimTree",
             text = "File Explorer",
             highlight = "Directory",
-            text_align = "left"
+            text_align = "left",
+            separator = true,
           }
         },
         show_buffer_icons = true,
