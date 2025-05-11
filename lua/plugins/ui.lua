@@ -1,7 +1,136 @@
 
 
 return {
+-- command line ui
+{
+  "folke/noice.nvim",
+  event = "VeryLazy",
+  dependencies = {
+    "MunifTanjim/nui.nvim",
+    "rcarriga/nvim-notify",
+  },
+  config = function()
+    require("noice").setup({
+      -- Enable command-line UI enhancement
+      cmdline = {
+        enabled = true,
+        view = "cmdline_popup", -- Or "cmdline" (bottom-style)
+      },
 
+      -- Message UI settings (like :echo output, etc.)
+      messages = {
+        enabled = true,
+        view = "mini", -- Use a compact view for messages
+      },
+
+      -- Popup view for notifications, search count, etc.
+      popupmenu = {
+        enabled = true,
+        backend = "nui", -- Uses `nui.nvim` to render it
+      },
+
+      -- LSP-related enhancements
+      lsp = {
+        progress = {
+          enabled = true, -- Show LSP loading/progress messages
+        },
+        signature = {
+          enabled = true, -- Inline signature help while typing
+        },
+        hover = {
+          enabled = true, -- Enhanced hover window
+        },
+        override = {
+           ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+           ["vim.lsp.util.stylize_markdown"] = true,
+           ["cmp.entry.get_documentation"] = true,
+        },
+      },
+
+      -- You can route messages to specific views
+      routes = {},
+
+      -- Notification integration with nvim-notify
+      notify = {
+        enabled = true,
+      },
+
+      -- Presets: enable nice UI for various features
+      presets = {
+        bottom_search = true,        -- Classic :/ at bottom
+        command_palette = true,      -- Like VS Code's command palette
+        long_message_to_split = true,-- Long messages open in a split
+        inc_rename = false,          -- Requires `inc-rename.nvim`
+        lsp_doc_border = true,       -- Add border to LSP hover/signature
+      },
+
+      -- Views (how things look)
+      views = {
+        cmdline_popup = {
+          position = {
+            row =  vim.o.lines - 10,-- 4 lines above the bottom, adjust as needed
+          --  row = vim.o.lines,
+            col = "50%",
+          },
+          size = {
+            width = 60,
+            height = "auto",
+          },
+          border = {
+            style = "rounded",
+          },
+          win_options = {
+            winhighlight = "NormalFloat:NormalFloat,FloatBorder:FloatBorder",
+          },
+        },
+      },
+    })
+
+    -- Optional: set noice to be your default notify handler
+    vim.notify = require("notify")
+  end,
+},
+
+{ "MunifTanjim/nui.nvim" },
+
+-- notify system
+{
+  "rcarriga/nvim-notify",
+  config = function()
+    require("notify").setup({
+      -- Animation style: "fade", "slide", "fade_in_slide_out", "static"
+      stages = "fade_in_slide_out",
+
+      -- Background color for notifications
+      background_colour = "#1e1e2e", -- Match your colorscheme (adjust as needed)
+
+      -- Timeout for notification to disappear (in ms)
+      timeout = 3000,
+
+      -- Minimum and maximum width of notification windows
+      max_width = 80,
+      max_height = 10,
+
+      -- Use icons for levels (ERROR, WARN, INFO, DEBUG, TRACE)
+      icons = {
+        ERROR = "",
+        WARN = "",
+        INFO = "",
+        DEBUG = "",
+        TRACE = "✎",
+      },
+
+      -- Whether to show notifications when they're replaced (queued)
+      render = "default",
+
+      -- Show newest notification on top
+      top_down = true,
+    })
+
+    -- Set nvim-notify as the default notification function for Neovim
+    vim.notify = require("notify")
+  end,
+},
 -- starting theme
 {
   "goolord/alpha-nvim",
@@ -27,6 +156,7 @@ return {
       dashboard.button("g", "󰱼  Find text", ":Telescope live_grep<CR>"),
       dashboard.button("c", "  Config", ":e $MYVIMRC<CR>"),
       dashboard.button("q", "  Quit", ":qa<CR>"),
+      dashboard.button("e", "  Explore nvim config", ":NvimTreeOpen ~/.config/nvim<CR>")
     }
 
     dashboard.section.footer.val = "🧠 Happy coding with Neovim + Tokyonight!"
