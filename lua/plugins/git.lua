@@ -50,14 +50,14 @@ return {
   {
     "tpope/vim-fugitive",
     cmd = { "Git", "G", "Gdiffsplit", "Gread", "Gwrite", "Glog", "Ggrep", "Gmove", "Gremove", "Gbrowse" },
-    keys = {
-      { "<leader>gs", ":Git<CR>", desc = "Git status" },
-      { "<leader>gc", ":Git commit<CR>", desc = "Git commit" },
-      { "<leader>gp", ":Git push<CR>", desc = "Git push" },
-      { "<leader>gl", ":Git pull<CR>", desc = "Git pull" },
-      { "<leader>gd", ":Gdiffsplit<CR>", desc = "Git diff split" },
-      { "<leader>gb", ":Git blame<CR>", desc = "Git blame" },
-      { "<leader>gw", ":Gwrite<CR>", desc = "Git add current file" },
-    },
+--    keys = {
+--      { "<leader>gs", ":Git<CR>", desc = "Git status" },
+--      { "<leader>gc", ":Git commit<CR>", desc = "Git commit" },
+--      { "<leader>gp", ":Git push<CR>", desc = "Git push" },
+--      { "<leader>gl", ":Git pull<CR>", desc = "Git pull" },
+--      { "<leader>gd", ":Gdiffsplit<CR>", desc = "Git diff split" },
+--      { "<leader>gb", ":Git blame<CR>", desc = "Git blame" },
+--      { "<leader>gw", ":Gwrite<CR>", desc = "Git add current file" },
+    -- }
   }
 }
