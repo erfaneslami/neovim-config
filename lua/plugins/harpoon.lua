@@ -14,7 +14,6 @@ return {
     -- Keymaps
     vim.keymap.set('n', '<leader>ha', function() list:add() end, { desc = 'Harpoon Add File' })
     vim.keymap.set('n', '<leader>hh', function() harpoon.ui:toggle_quick_menu(list) end, { desc = 'Harpoon Menu' })
-
     -- Navigate to files (1-4)
     vim.keymap.set('n', '<leader>1', function() list:select(1) end, { desc = 'Harpoon File 1' })
     vim.keymap.set('n', '<leader>2', function() list:select(2) end, { desc = 'Harpoon File 2' })

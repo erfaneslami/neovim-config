@@ -1,6 +1,38 @@
 
 
 return {
+
+
+{
+  'lukas-reineke/indent-blankline.nvim',
+  main = 'ibl', -- IBL is the new module name
+  event = { 'BufReadPre', 'BufNewFile' },
+  opts = {
+    indent = {
+      char = '│',         -- Use '┊', '▏', or '¦' as alternatives
+      tab_char = '│',
+    },
+    scope = {
+      enabled = true,     -- Highlight the current scope
+      show_start = false,
+      show_end = false,
+    },
+    exclude = {
+      filetypes = {
+        'help',
+        'terminal',
+        'dashboard',
+        'lazy',
+        'NvimTree',
+        'mason',
+      },
+      buftypes = {
+        'terminal',
+        'nofile',
+      },
+    },
+  },
+},
 -- command line ui
 {
   "folke/noice.nvim",
