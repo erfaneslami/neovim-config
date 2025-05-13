@@ -221,7 +221,9 @@ return {
     vim.cmd("colorscheme tokyonight")
   end,
 },
-
+{
+  'famiu/bufdelete.nvim'
+},
 {
   "akinsho/bufferline.nvim",
   version = "*",
@@ -229,6 +231,7 @@ return {
   config = function()
     require("bufferline").setup({
       options = {
+        -- mode = "tabs", -- or "tabs"
         mode = "buffers", -- or "tabs"
         numbers = "none", -- "ordinal" | "buffer_id" | "both" | function
         diagnostics = "nvim_lsp", -- shows LSP errors/warnings on tabs
