@@ -27,5 +27,13 @@ return {
   "windwp/nvim-ts-autotag",
   ft = { "html", "xml", "javascript", "typescript", "javascriptreact", "typescriptreact" },
   config = true,
+  },
+   {
+    "j-hui/fidget.nvim",
+    tag = "legacy",  -- OR remove this if using the latest modern config
+    event = "LspAttach",
+    config = function()
+      require("fidget").setup({})
+    end,
   }
 }

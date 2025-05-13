@@ -2,7 +2,13 @@
 
 return {
 
-
+{
+  "folke/which-key.nvim",
+  event = "VeryLazy",
+  config = function()
+    require("which-key").setup()
+  end,
+},
 {
   'lukas-reineke/indent-blankline.nvim',
   main = 'ibl', -- IBL is the new module name
