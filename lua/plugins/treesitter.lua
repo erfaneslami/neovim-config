@@ -35,5 +35,9 @@ return {
     config = function()
       require("fidget").setup({})
     end,
+  },
+  {
+    "mg979/vim-visual-multi",
+    branch = "master"
   }
 }
