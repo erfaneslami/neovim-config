@@ -34,3 +34,9 @@ opt.shiftwidth = 2
 opt.expandtab = true
 opt.autoindent = true
 opt.smartindent = true
+
+vim.o.foldmethod = "expr"
+vim.o.foldexpr = "nvim_treesitter#foldexpr()"
+vim.o.foldenable = false -- start with folds open
+vim.o.foldlevel = 99     -- show all folds by default
+vim.o.foldlevelstart = 99
