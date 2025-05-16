@@ -1,7 +1,24 @@
 local opt = vim.opt
 local g = vim.g
 
+vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+
+-- vim.cmd [[
+--   hi Normal       guibg=NONE ctermbg=NONE
+--   hi NormalFloat  guibg=NONE ctermbg=NONE
+--   hi SignColumn   guibg=NONE ctermbg=NONE
+--   hi VertSplit    guibg=NONE ctermbg=NONE
+--   hi StatusLine   guibg=NONE ctermbg=NONE
+--   hi LineNr       guibg=NONE ctermbg=NONE
+--   hi NonText      guibg=NONE ctermbg=NONE
+--   hi TelescopeNormal guibg=NONE ctermbg=NONE
+-- ]]
 -- General
+--
+--
+
+
 opt.mouse = 'a'
 opt.clipboard = 'unnamedplus'
 opt.swapfile = false
