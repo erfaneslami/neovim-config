@@ -9,6 +9,21 @@ vim.keymap.set("n", "<leader>B", function()
 end, { desc = "DAP: Set Conditional Breakpoint" })
 
 
+vim.keymap.set("n", "<leader>dh", function()
+  require("dap.ui.widgets").hover()
+end, { desc = "DAP hover variable" })
+
+
+vim.keymap.set("n", "<leader>dp", function()
+  local widgets = require("dap.ui.widgets")
+  widgets.preview()
+end, { desc = "DAP preview expression" })
+
+
+
+-- vim.keymap.set("n", "<leader>du", require("dapui").toggle, { desc = "Toggle DAP UI" })
+-- vim.keymap.set("n", "<leader>de", require("dapui").eval, { desc = "Evaluate expression" })
+-- vim.keymap.set("v", "<leader>de", require("dapui").eval, { desc = "Evaluate selection" })
 
 
 -- lua/plugins/debug.lua
@@ -28,7 +43,60 @@ return {
       local dap = require("dap")
       local dapui = require("dapui")
 
-      dapui.setup()
+      dapui.setup({
+      icons = { expanded = "▾", collapsed = "▸", current_frame = "⭐" },
+
+      controls = {
+        enabled = true,
+        element = "repl",
+        icons = {
+          pause = "⏸",
+          play = "▶",
+          step_into = "⏎",
+          step_over = "⏭",
+          step_out = "⏮",
+          step_back = "🔁",
+          run_last = "🔄",
+          terminate = "⏹",
+          disconnect = "⏏",
+        },
+      },
+
+      layouts = {
+        {
+          elements = {
+            { id = "scopes", size = 0.4 },
+            { id = "breakpoints", size = 0.2 },
+            { id = "stacks", size = 0.2 },
+            { id = "watches", size = 0.2 },
+          },
+          size = 50, -- width of the left panel
+          position = "left",
+        },
+        {
+          elements = {
+            { id = "repl", size = 0.5 },
+            { id = "console", size = 0.5 },
+          },
+          size = 12, -- height of bottom panel
+          position = "bottom",
+        },
+      },
+
+      floating = {
+        max_height = 0.4,
+        max_width = 0.4,
+        border = "rounded",
+        mappings = {
+          close = { "q", "<Esc>" },
+        },
+      },
+
+      render = {
+        max_type_length = 40,   -- truncate long type strings
+        max_value_lines = 5,    -- wrap values across multiple lines
+      },
+    })
 
       -- Auto open/close DAP UI
       dap.listeners.after.event_initialized["dapui_config"] = function()
@@ -58,6 +126,21 @@ return {
           end,
         },
       }
+    end,
+  },
+
+  {
+    "theHamsta/nvim-dap-virtual-text",
+    dependencies = { "mfussenegger/nvim-dap" },
+    config = function()
+      require("nvim-dap-virtual-text").setup({
+        enabled = true,
+        enabled_commands = true,
+        highlight_changed_variables = true,
+        highlight_new_as_changed = true,
+        show_stop_reason = true,
+        commented = false, -- if true: adds comment string before virtual text
+      })
     end,
   }
 }
