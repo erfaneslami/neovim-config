@@ -59,6 +59,38 @@ if vim.g.vscode then
   keymap('n', '<leader>n', function()
     vscode.action('editor.action.nextMatchFindAction')
   end, opts)
+
+
+
+  -- Clipboard: optional, enables system clipboard usage with "+ or * registers
+  vim.opt.clipboard = "unnamedplus"
+  
+  -- Remap delete and change commands to not update default register
+  vim.keymap.set("n", "d", '"_d', { noremap = true })
+  vim.keymap.set("n", "D", '"_D', { noremap = true })
+  vim.keymap.set("n", "x", '"_x', { noremap = true })
+  vim.keymap.set("n", "X", '"_X', { noremap = true })
+  vim.keymap.set("n", "c", '"_c', { noremap = true })
+  vim.keymap.set("n", "C", '"_C', { noremap = true })
+  
+  vim.keymap.set("v", "d", '"_d', { noremap = true })
+  vim.keymap.set("v", "x", '"_x', { noremap = true })
+  vim.keymap.set("v", "c", '"_c', { noremap = true })
+  
+  -- Keep the paste register when pasting over something in visual mode
+  vim.keymap.set("v", "p", '"_dP', { noremap = true })
+  
+  -- Optional: ci( and similar text objects — handled automatically by "c"
+  -- since we've mapped "c" and "d" to "_", you don’t need to remap textobjects separately
+  
+  -- Optional convenience: yank to system clipboard with <leader>y
+  vim.keymap.set("n", "<leader>y", '"+y', { noremap = true })
+  vim.keymap.set("v", "<leader>y", '"+y', { noremap = true })
+  
+  -- Optional: paste from system clipboard with <leader>p
+  vim.keymap.set("n", "<leader>p", '"+p', { noremap = true })
+  vim.keymap.set("v", "<leader>p", '"+p', { noremap = true })
+
 else
   require('core.keymaps')
   require('core.lazy')
