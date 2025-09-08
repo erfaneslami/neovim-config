@@ -22,8 +22,10 @@ if vim.g.vscode then
   -- File explorer toggle
   keymap("n", "<leader>e", function() vscode_action('workbench.view.explorer') end, opts)
   keymap("n", "<leader>q", function() vscode_action('workbench.action.closeActiveEditor') end, opts)
-
-  keymap("n", "<leader>ee", function() vscode_action('workbench.action.toggleSidebarVisibility') end, opts)
+  vim.keymap.set('n', '<leader>qa', function()
+    vscode.action('workbench.action.closeAllEditors')
+  end, { desc = 'Close all tabs' })
+    keymap("n", "<leader>ee", function() vscode_action('workbench.action.toggleSidebarVisibility') end, opts)
   
   -- Folding
   keymap("n", "zc", function() vscode_action('editor.toggleFold') end, opts)
@@ -90,6 +92,28 @@ if vim.g.vscode then
   -- Optional: paste from system clipboard with <leader>p
   vim.keymap.set("n", "<leader>p", '"+p', { noremap = true })
   vim.keymap.set("v", "<leader>p", '"+p', { noremap = true })
+-- Comment with <leader>c in normal and visual mode
+  vim.keymap.set("n", "<leader>c", function()
+    vim.cmd("call VSCodeNotify('editor.action.commentLine')")
+  end, { silent = true })
+  
+  vim.keymap.set("v", "<leader>c", function()
+    vim.cmd("call VSCodeNotify('editor.action.commentLine')")
+  end, { silent = true })
+
+
+  -- <leader>xf → focus Explorer and reveal current file
+  vim.keymap.set("n", "<leader>xf", function()
+    -- Open the Explorer sidebar
+    vim.cmd("call VSCodeNotify('workbench.view.explorer')")
+    -- Reveal the current file in Explorer
+    vim.cmd("call VSCodeNotify('workbench.files.action.showActiveFileInExplorer')")
+  end, { silent = true })
+
+  -- Close other tabs (keep current)
+  vim.keymap.set('n', '<leader>qo', function()
+    vscode.action('workbench.action.closeOtherEditors')
+  end, { desc = 'Close other tabs' })
 
 else
   require('core.keymaps')
