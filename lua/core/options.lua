@@ -1,59 +1,50 @@
 local opt = vim.opt
-local g = vim.g
 
-vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
-
--- vim.cmd [[
---   hi Normal       guibg=NONE ctermbg=NONE
---   hi NormalFloat  guibg=NONE ctermbg=NONE
---   hi SignColumn   guibg=NONE ctermbg=NONE
---   hi VertSplit    guibg=NONE ctermbg=NONE
---   hi StatusLine   guibg=NONE ctermbg=NONE
---   hi LineNr       guibg=NONE ctermbg=NONE
---   hi NonText      guibg=NONE ctermbg=NONE
---   hi TelescopeNormal guibg=NONE ctermbg=NONE
--- ]]
--- General
---
---
-
-
-opt.mouse = 'a'
-opt.clipboard = 'unnamedplus'
-opt.swapfile = false
-opt.undofile = true
-opt.history = 1000
-opt.undodir = vim.fn.stdpath('data') .. '/undodir'
-opt.updatetime = 300  -- Faster completion
-opt.timeoutlen = 500  -- Time to wait for mapped sequence
-
--- UI
+-- Line numbers
 opt.number = true
 opt.relativenumber = true
-opt.cursorline = true
-opt.signcolumn = 'yes'
+
+-- Scrolling
+opt.scrolloff = 10
+
+-- Display
+opt.showmode = true
+opt.showcmd = true
 opt.termguicolors = true
-opt.scrolloff = 8
-opt.sidescrolloff = 8
-opt.splitright = true
-opt.splitbelow = true
+opt.visualbell = true
 
 -- Search
-opt.ignorecase = true
 opt.smartcase = true
-opt.hlsearch = true
+opt.ignorecase = true
 opt.incsearch = true
+opt.hlsearch = true
+
+-- Clipboard
+opt.clipboard = "unnamedplus"
+
+-- Mouse
+opt.mouse = "a"
 
 -- Indentation
-opt.tabstop = 2
-opt.shiftwidth = 2
 opt.expandtab = true
-opt.autoindent = true
+opt.tabstop = 4
+opt.shiftwidth = 4
 opt.smartindent = true
 
-vim.o.foldmethod = "expr"
-vim.o.foldexpr = "nvim_treesitter#foldexpr()"
-vim.o.foldenable = false -- start with folds open
-vim.o.foldlevel = 99     -- show all folds by default
-vim.o.foldlevelstart = 99
+-- Line wrapping
+opt.wrap = false
+
+-- File handling
+opt.swapfile = false
+opt.backup = false
+opt.undofile = true
+-- opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+
+-- Split behavior
+opt.splitbelow = true
+opt.splitright = true
+
+-- Update time
+opt.updatetime = 250
+opt.timeoutlen = 300
+--]]
