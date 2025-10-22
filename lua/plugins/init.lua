@@ -74,7 +74,7 @@ require("lazy").setup({
               },
             },
           },
-        },
+       },
         filters = {
           dotfiles = false,
           custom = { ".git", "node_modules", ".cache" },
@@ -174,9 +174,7 @@ require("lazy").setup({
 
       require("mason-lspconfig").setup({
         ensure_installed = {
-          "lua_ls",
-          "pyright",
-          "ts_ls", -- Updated from tsserver
+          "lua_ls"
         },
         automatic_installation = true,
       })
@@ -205,17 +203,18 @@ require("lazy").setup({
           },
         },
       })
-   -- Auto-start LSP servers when opening files
+
+  -- Auto-start LSP servers when opening files
       vim.api.nvim_create_autocmd("FileType", {
-        pattern = { "lua", "python", "javascript", "typescript", "javascriptreact", "typescriptreact" },
-        callback = function()
-          vim.lsp.start({
-            name = vim.bo.filetype == "lua" and "lua_ls" 
-                   or vim.bo.filetype == "python" and "pyright"
-                   or "ts_ls",
-          })
-        end,
-      })
+         pattern = { "lua", "markdown" , "md"  },
+         callback = function()
+           vim.wo.spell = true
+           vim.lsp.start({
+             name = "lua_ls",
+             cmd = {"lua-language-server"}
+           })
+         end,
+       })
       -- Diagnostic configuration
       vim.diagnostic.config({
         virtual_text = true,

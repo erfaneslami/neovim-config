@@ -215,3 +215,33 @@ keymap("v", ">", ">gv", opts)
 -- Parameter info (IntelliJ-like)
 keymap("n", "<C-p>", vim.lsp.buf.signature_help, opts)
 keymap("i", "<C-p>", vim.lsp.buf.signature_help, opts)
+
+
+-- Set up nvim-tree specific keymaps
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "NvimTree",
+  callback = function(args)
+    local api = require('nvim-tree.api')
+    local bufnr = args.buf
+    
+    -- Create file/folder
+    keymap('n', '<leader>n', api.fs.create, { buffer = bufnr, noremap = true, silent = true, desc = "Create file/folder" })
+    keymap('n', 'a', api.fs.create, { buffer = bufnr, noremap = true, silent = true, desc = "Create file/folder" })
+    
+    -- Delete
+    keymap('n', 'd', api.fs.remove, { buffer = bufnr, noremap = true, silent = true, desc = "Delete" })
+    
+    -- Rename
+    keymap('n', 'r', api.fs.rename, { buffer = bufnr, noremap = true, silent = true, desc = "Rename" })
+    
+    -- Cut, Copy, Paste
+    keymap('n', 'x', api.fs.cut, { buffer = bufnr, noremap = true, silent = true, desc = "Cut" })
+    keymap('n', 'c', api.fs.copy.node, { buffer = bufnr, noremap = true, silent = true, desc = "Copy" })
+    keymap('n', 'p', api.fs.paste, { buffer = bufnr, noremap = true, silent = true, desc = "Paste" })
+    
+    -- Copy name/path
+    keymap('n', 'y', api.fs.copy.filename, { buffer = bufnr, noremap = true, silent = true, desc = "Copy filename" })
+    keymap('n', 'Y', api.fs.copy.absolute_path, { buffer = bufnr, noremap = true, silent = true, desc = "Copy absolute path" })
+  end,
+})
+
