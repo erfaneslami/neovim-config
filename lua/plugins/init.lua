@@ -1,4 +1,4 @@
--- lua/plugins/init.lua
+-- lua/plugins/init.lua 
 -- All plugins in one file
 
 -- Bootstrap lazy.nvim
@@ -152,7 +152,7 @@ require("lazy").setup({
   -- ============================================================================
   -- LSP (Language Server Protocol)
   -- ============================================================================
- {
+  {
     "neovim/nvim-lspconfig",
     dependencies = {
       "williamboman/mason.nvim",
@@ -172,9 +172,12 @@ require("lazy").setup({
         },
       })
 
+      -- Install language servers
       require("mason-lspconfig").setup({
         ensure_installed = {
-          "lua_ls"
+          "lua_ls",      -- Lua
+          "marksman",    -- Markdown
+          "vimls",       -- Vim
         },
         automatic_installation = true,
       })
@@ -182,42 +185,96 @@ require("lazy").setup({
       -- Capabilities for autocompletion
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-      -- Use vim.lsp.config instead of lspconfig (Neovim 0.11+)
-      local lsp_config = vim.lsp.config
-      
-      -- Lua LSP
-      lsp_config('lua_ls', {
-        capabilities = capabilities,
-        settings = {
-          Lua = {
-            diagnostics = {
-              globals = { "vim" },
-            },
-            workspace = {
-              library = vim.api.nvim_get_runtime_file("", true),
-              checkThirdParty = false,
-            },
-            telemetry = {
-              enable = false,
+      -- Common on_attach function
+      local on_attach = function(client, bufnr)
+        vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+      end
+
+      -- ========================================================================
+      -- LSP SERVER CONFIGURATIONS (Using new API)
+      -- ========================================================================
+
+      -- Check Neovim version and use appropriate API
+      local nvim_version = vim.version()
+      local use_new_api = nvim_version.major > 0 or (nvim_version.major == 0 and nvim_version.minor >= 11)
+
+      if use_new_api then
+        -- Neovim 0.11+ : Use vim.lsp.config
+        local lsp_config = vim.lsp.config
+
+        -- Lua LSP
+        lsp_config("lua_ls", {
+          capabilities = capabilities,
+          cmd = { "lua-language-server" },
+          filetypes = { "lua" },
+          root_markers = { ".git", ".luarc.json", ".luarc.jsonc" },
+          settings = {
+            Lua = {
+              diagnostics = { globals = { "vim" } },
+              workspace = {
+                library = vim.api.nvim_get_runtime_file("", true),
+                checkThirdParty = false,
+              },
+              telemetry = { enable = false },
+              hint = { enable = true },
             },
           },
-        },
-      })
+        })
 
-  -- Auto-start LSP servers when opening files
-      vim.api.nvim_create_autocmd("FileType", {
-         pattern = { "lua", "markdown" , "md"  },
-         callback = function()
-           vim.wo.spell = true
-           vim.lsp.start({
-             name = "lua_ls",
-             cmd = {"lua-language-server"}
-           })
-         end,
-       })
-      -- Diagnostic configuration
+        -- Markdown LSP
+        lsp_config("marksman", {
+          capabilities = capabilities,
+          cmd = { "marksman", "server" },
+          filetypes = { "markdown", "md" },
+        })
+
+        -- Vim LSP
+        lsp_config("vimls", {
+          capabilities = capabilities,
+          cmd = { "vim-language-server", "--stdio" },
+          filetypes = { "vim" },
+        })
+
+      else
+        -- Neovim < 0.11: Use old lspconfig API
+        local lspconfig = require("lspconfig")
+
+        lspconfig.lua_ls.setup({
+          on_attach = on_attach,
+          capabilities = capabilities,
+          settings = {
+            Lua = {
+              diagnostics = { globals = { "vim" } },
+              workspace = {
+                library = vim.api.nvim_get_runtime_file("", true),
+                checkThirdParty = false,
+              },
+              telemetry = { enable = false },
+            },
+          },
+        })
+
+        lspconfig.marksman.setup({
+          on_attach = on_attach,
+          capabilities = capabilities,
+        })
+
+        lspconfig.vimls.setup({
+          on_attach = on_attach,
+          capabilities = capabilities,
+        })
+      end
+
+      -- ========================================================================
+      -- DIAGNOSTIC CONFIGURATION
+      -- ========================================================================
+
       vim.diagnostic.config({
-        virtual_text = true,
+        virtual_text = {
+          spacing = 4,
+          prefix = "●",
+          severity = { min = vim.diagnostic.severity.HINT },
+        },
         signs = true,
         update_in_insert = false,
         underline = true,
@@ -225,19 +282,68 @@ require("lazy").setup({
         float = {
           border = "rounded",
           source = "always",
+          header = "",
+          prefix = "",
         },
       })
 
       -- Diagnostic signs
-      local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
+      local signs = { 
+        Error = " ", 
+        Warn = " ", 
+        Hint = "󰌶 ", 
+        Info = " " 
+      }
       for type, icon in pairs(signs) do
         local hl = "DiagnosticSign" .. type
         vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
       end
-    end,
-  },
 
-  -- ============================================================================
+      -- ========================================================================
+      -- SPELL CHECK CONFIGURATION
+      -- ========================================================================
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "markdown", "text", "gitcommit" },
+        callback = function()
+          vim.opt_local.spell = true
+          vim.opt_local.spelllang = "en_us"
+        end,
+      })
+
+      -- ========================================================================
+      -- MARKDOWN SPECIFIC SETTINGS (Disable false positives)
+      -- ========================================================================
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "markdown" },
+        callback = function(args)
+          -- Only show warnings and errors (hide info/hints)
+          vim.diagnostic.config({
+            virtual_text = {
+              severity = { min = vim.diagnostic.severity.WARN }
+            },
+          }, args.buf)
+        end,
+      })
+
+      -- ========================================================================
+      -- HANDLERS (Better LSP UI)
+      -- ========================================================================
+
+      vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+        vim.lsp.handlers.hover, {
+          border = "rounded",
+        }
+      )
+
+      vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
+        vim.lsp.handlers.signature_help, {
+          border = "rounded",
+        }
+      )
+    end,
+  }, -- ============================================================================
   -- AUTOCOMPLETION
   -- ============================================================================
   {
@@ -320,12 +426,12 @@ require("lazy").setup({
   -- ============================================================================
   -- LEAP (Motion like easymotion/sneak)
   -- ============================================================================
-  {
-    "ggandor/leap.nvim",
-    config = function()
-      require("leap").add_default_mappings()
-    end,
-  },
+  -- {
+  --   "ggandor/leap.nvim",
+  --   config = function()
+  --     require("leap").add_default_mappings()
+  --   end,
+  -- },
 
   -- ============================================================================
   -- GITSIGNS (Git integration)
