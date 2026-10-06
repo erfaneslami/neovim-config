@@ -1,12 +1,9 @@
-
 local keymap = vim.keymap.set
 local opts = { noremap = true, silent = true }
 
 -- ============================================================================
 -- BASIC EDITING
 -- ============================================================================
-print("keymaps loaded")
-
 
 -- Visual indentation (keep selection)
 keymap("v", "<", "<gv", opts)
@@ -30,26 +27,20 @@ keymap("n", "S", '"_S', opts)
 -- Don't let visual paste overwrite clipboard
 keymap("v", "p", '"_dP', opts)
 
--- Replace current line with previous line content (like your rp mapping)
+-- Replace current line with clipboard
 keymap("n", "<leader>rp", '"_ddP', opts)
 
 -- Move lines up/down in visual mode
-keymap("v", "<S-J>", ":m '>+1<CR>gv=gv", opts)
-keymap("v", "<S-K>", ":m '<-2<CR>gv=gv", opts)
+keymap("v", "J", ":m '>+1<CR>gv=gv", opts)
+keymap("v", "K", ":m '<-2<CR>gv=gv", opts)
 
 -- ============================================================================
 -- NAVIGATION
 -- ============================================================================
 
--- Tab navigation
 keymap("n", "<A-n>", ":tabnext<CR>", opts)
 keymap("n", "<A-p>", ":tabprev<CR>", opts)
 
--- Navigate jumplist (back/forward)
-keymap("n", "<C-o>", "<C-o>", opts)
-keymap("n", "<C-i>", "<C-i>", opts)
-
--- Navigate diagnostics/errors
 keymap("n", "]e", vim.diagnostic.goto_next, opts)
 keymap("n", "[e", vim.diagnostic.goto_prev, opts)
 keymap("n", "<leader>ed", vim.diagnostic.open_float, opts)
@@ -70,10 +61,12 @@ keymap("v", "<leader>c", function()
 end, opts)
 
 -- ============================================================================
--- LEADER + J: JUMP (LEAP/EASYMOTION)
+-- LEADER + J: JUMP (FLASH / easymotion-like)
 -- ============================================================================
 
-keymap("n", "<leader>j", "<Plug>(leap-forward-to)", opts)
+keymap({ "n", "x", "o" }, "<leader>j", function()
+  require("flash").jump()
+end, opts)
 
 -- ============================================================================
 -- LEADER + X: FILE EXPLORER (NVIM-TREE)
@@ -86,8 +79,8 @@ keymap("n", "<leader>xf", ":NvimTreeFindFile<CR>", opts)
 -- LEADER + Z: FOLDING
 -- ============================================================================
 
-keymap("n", "<leader>zc", "zM", opts)  -- Close all folds
-keymap("n", "<leader>zo", "zR", opts)  -- Open all folds
+keymap("n", "<leader>zc", "zM", opts)
+keymap("n", "<leader>zo", "zR", opts)
 
 -- ============================================================================
 -- LEADER + W: WINDOWS/SPLITS
@@ -108,7 +101,7 @@ keymap("n", "<leader>dz", ":ZenMode<CR>", opts)
 keymap("n", "<leader>dd", ":ZenMode<CR>", opts)
 
 -- ============================================================================
--- LEADER + F: FIND (TELESCOPE)
+-- LEADER + F: FIND (TELESCOPE) + FORMAT
 -- ============================================================================
 
 keymap("n", "<leader>ff", ":Telescope find_files<CR>", opts)
@@ -117,13 +110,13 @@ keymap("n", "<leader>fa", ":Telescope live_grep<CR>", opts)
 keymap("n", "<leader>fb", ":Telescope buffers<CR>", opts)
 keymap("n", "<leader>fs", ":Telescope current_buffer_fuzzy_find<CR>", opts)
 keymap("n", "<leader>fu", ":Telescope lsp_references<CR>", opts)
-
--- ============================================================================
--- LEADER + A: ACTIONS (TELESCOPE/LSP)
--- ============================================================================
-
-keymap("n", "<leader>as", ":Telescope live_grep<CR>", opts)
-keymap("n", "<leader>am", vim.lsp.buf.code_action, opts)
+keymap("n", "<leader>fc", ":Telescope lsp_workspace_symbols<CR>", opts)
+keymap("n", "<leader>fl", ":Telescope jumplist<CR>", opts)
+keymap("n", "<leader>fn", ":enew<CR>", opts)
+keymap("n", "<leader>/", ":Telescope current_buffer_fuzzy_find<CR>", opts)
+keymap("n", "<leader>fm", function()
+  vim.lsp.buf.format({ async = true })
+end, opts)
 
 -- ============================================================================
 -- LEADER + Q: QUIT/CLOSE
@@ -139,18 +132,16 @@ keymap("n", "<leader>qa", ":%bd|e#|bd#<CR>", opts)
 keymap("n", "<leader>rn", vim.lsp.buf.rename, opts)
 keymap("n", "<leader>ca", vim.lsp.buf.code_action, opts)
 keymap("v", "<leader>ca", vim.lsp.buf.code_action, opts)
+keymap("n", "<leader>rr", vim.lsp.buf.code_action, opts)
 
 -- ============================================================================
--- LEADER + G: GO TO (LSP) - These are set in LSP config but listed here
+-- LEADER + G: GO TO (LSP)
 -- ============================================================================
 
--- Note: These are configured in lua/plugins/lsp.lua on LspAttach
--- Listed here for reference:
--- <leader>gd - Go to definition
--- <leader>gy - Go to type definition
--- <leader>gi - Go to implementation
--- <leader>gu - Show usages/references
--- <leader>gt - Go to test (not implemented in standard LSP)
+keymap("n", "<leader>gd", vim.lsp.buf.definition, opts)
+keymap("n", "<leader>gy", vim.lsp.buf.type_definition, opts)
+keymap("n", "<leader>gi", vim.lsp.buf.implementation, opts)
+keymap("n", "<leader>gu", vim.lsp.buf.references, opts)
 
 -- ============================================================================
 -- LEADER + G: GIT (TELESCOPE)
@@ -174,8 +165,8 @@ keymap("n", "<leader>hu", ":Telescope lsp_document_symbols<CR>", opts)
 -- LEADER + V/P: CLIPBOARD/PASTE
 -- ============================================================================
 
-keymap("n", "<leader>v", ':Telescope registers<CR>', opts)
-keymap("n", "<leader>p", ':Telescope registers<CR>', opts)
+keymap("n", "<leader>v", ":Telescope registers<CR>", opts)
+keymap("n", "<leader>p", ":Telescope registers<CR>", opts)
 
 -- ============================================================================
 -- LEADER + N: NEW FILE
@@ -193,55 +184,37 @@ keymap("n", "<leader>ct", ":NvimTreeClose<CR>", opts)
 -- OTHER USEFUL KEYMAPS
 -- ============================================================================
 
--- Clear search highlighting
 keymap("n", "<Esc>", ":noh<CR>", opts)
 
--- Better window navigation
 keymap("n", "<C-h>", "<C-w>h", opts)
 keymap("n", "<C-j>", "<C-w>j", opts)
 keymap("n", "<C-k>", "<C-w>k", opts)
 keymap("n", "<C-l>", "<C-w>l", opts)
 
--- Resize windows with arrows
 keymap("n", "<C-Up>", ":resize +2<CR>", opts)
 keymap("n", "<C-Down>", ":resize -2<CR>", opts)
 keymap("n", "<C-Left>", ":vertical resize -2<CR>", opts)
 keymap("n", "<C-Right>", ":vertical resize +2<CR>", opts)
 
--- Stay in indent mode
-keymap("v", "<", "<gv", opts)
-keymap("v", ">", ">gv", opts)
-
--- Parameter info (IntelliJ-like)
 keymap("n", "<C-p>", vim.lsp.buf.signature_help, opts)
 keymap("i", "<C-p>", vim.lsp.buf.signature_help, opts)
 
-
--- Set up nvim-tree specific keymaps
+-- nvim-tree buffer-local keymaps
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "NvimTree",
   callback = function(args)
-    local api = require('nvim-tree.api')
+    local api = require("nvim-tree.api")
     local bufnr = args.buf
-    
-    -- Create file/folder
-    keymap('n', '<leader>n', api.fs.create, { buffer = bufnr, noremap = true, silent = true, desc = "Create file/folder" })
-    keymap('n', 'a', api.fs.create, { buffer = bufnr, noremap = true, silent = true, desc = "Create file/folder" })
-    
-    -- Delete
-    keymap('n', 'd', api.fs.remove, { buffer = bufnr, noremap = true, silent = true, desc = "Delete" })
-    
-    -- Rename
-    keymap('n', 'r', api.fs.rename, { buffer = bufnr, noremap = true, silent = true, desc = "Rename" })
-    
-    -- Cut, Copy, Paste
-    keymap('n', 'x', api.fs.cut, { buffer = bufnr, noremap = true, silent = true, desc = "Cut" })
-    keymap('n', 'c', api.fs.copy.node, { buffer = bufnr, noremap = true, silent = true, desc = "Copy" })
-    keymap('n', 'p', api.fs.paste, { buffer = bufnr, noremap = true, silent = true, desc = "Paste" })
-    
-    -- Copy name/path
-    keymap('n', 'y', api.fs.copy.filename, { buffer = bufnr, noremap = true, silent = true, desc = "Copy filename" })
-    keymap('n', 'Y', api.fs.copy.absolute_path, { buffer = bufnr, noremap = true, silent = true, desc = "Copy absolute path" })
+    local bopts = { buffer = bufnr, noremap = true, silent = true }
+
+    keymap("n", "<leader>n", api.fs.create, vim.tbl_extend("force", bopts, { desc = "Create file/folder" }))
+    keymap("n", "a", api.fs.create, vim.tbl_extend("force", bopts, { desc = "Create file/folder" }))
+    keymap("n", "d", api.fs.remove, vim.tbl_extend("force", bopts, { desc = "Delete" }))
+    keymap("n", "r", api.fs.rename, vim.tbl_extend("force", bopts, { desc = "Rename" }))
+    keymap("n", "x", api.fs.cut, vim.tbl_extend("force", bopts, { desc = "Cut" }))
+    keymap("n", "c", api.fs.copy.node, vim.tbl_extend("force", bopts, { desc = "Copy" }))
+    keymap("n", "p", api.fs.paste, vim.tbl_extend("force", bopts, { desc = "Paste" }))
+    keymap("n", "y", api.fs.copy.filename, vim.tbl_extend("force", bopts, { desc = "Copy filename" }))
+    keymap("n", "Y", api.fs.copy.absolute_path, vim.tbl_extend("force", bopts, { desc = "Copy absolute path" }))
   end,
 })
-

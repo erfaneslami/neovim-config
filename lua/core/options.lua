@@ -38,7 +38,6 @@ opt.wrap = false
 opt.swapfile = false
 opt.backup = false
 opt.undofile = true
--- opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 
 -- Split behavior
 opt.splitbelow = true
@@ -47,4 +46,12 @@ opt.splitright = true
 -- Update time
 opt.updatetime = 250
 opt.timeoutlen = 300
---]]
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "markdown",
+  callback = function()
+    vim.opt_local.textwidth = 80
+    vim.opt_local.wrap = true
+    vim.opt_local.linebreak = true
+  end,
+})

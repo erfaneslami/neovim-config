@@ -1,10 +1,7 @@
--- lua/plugins/init.lua 
--- All plugins in one file
-
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-  print("Installing lazy.nvim...")
+  vim.notify("Installing lazy.nvim...", vim.log.levels.INFO)
   vim.fn.system({
     "git",
     "clone",
@@ -16,40 +13,36 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- All plugins in one place
+local not_vscode = function()
+  return not vim.g.vscode
+end
+
 require("lazy").setup({
-  
   -- ============================================================================
-  -- COLORSCHEME - VS Code Theme
+  -- COLORSCHEME
   -- ============================================================================
   {
     "Mofiqul/vscode.nvim",
     lazy = false,
     priority = 1000,
+    cond = not_vscode,
     config = function()
       require("vscode").setup({
-        -- Style: 'dark' (default), 'light'
         style = "dark",
-        
-        -- Enable transparent background
         transparent = false,
-        
-        -- Enable italic comments
         italic_comments = true,
-        
-        -- Disable nvim-tree background color
         disable_nvimtree_bg = true,
       })
-      
       require("vscode").load()
     end,
   },
 
   -- ============================================================================
-  -- FILE EXPLORER (NERDTree equivalent)
+  -- FILE EXPLORER
   -- ============================================================================
   {
     "nvim-tree/nvim-tree.lua",
+    cond = not_vscode,
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       vim.g.loaded_netrw = 1
@@ -74,7 +67,7 @@ require("lazy").setup({
               },
             },
           },
-       },
+        },
         filters = {
           dotfiles = false,
           custom = { ".git", "node_modules", ".cache" },
@@ -89,10 +82,11 @@ require("lazy").setup({
   },
 
   -- ============================================================================
-  -- TELESCOPE (Fuzzy Finder)
+  -- TELESCOPE
   -- ============================================================================
   {
     "nvim-telescope/telescope.nvim",
+    cond = not_vscode,
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
       local telescope = require("telescope")
@@ -114,7 +108,7 @@ require("lazy").setup({
             "target/",
             "build/",
           },
-          prompt_prefix = "🔍 ",
+          prompt_prefix = " ",
           selection_caret = " ",
         },
         pickers = {
@@ -127,16 +121,23 @@ require("lazy").setup({
   },
 
   -- ============================================================================
-  -- TREESITTER (Syntax Highlighting)
+  -- TREESITTER
   -- ============================================================================
   {
     "nvim-treesitter/nvim-treesitter",
+    cond = not_vscode,
     build = ":TSUpdate",
     event = { "BufReadPost", "BufNewFile" },
     config = function()
       require("nvim-treesitter.configs").setup({
         ensure_installed = {
-          "lua", "vim", "vimdoc", "json", "yaml", "bash", "markdown",
+          "lua",
+          "vim",
+          "vimdoc",
+          "json",
+          "yaml",
+          "bash",
+          "markdown",
         },
         highlight = {
           enable = true,
@@ -150,17 +151,17 @@ require("lazy").setup({
   },
 
   -- ============================================================================
-  -- LSP (Language Server Protocol)
+  -- LSP
   -- ============================================================================
   {
     "neovim/nvim-lspconfig",
+    cond = not_vscode,
     dependencies = {
       "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
       "hrsh7th/cmp-nvim-lsp",
     },
     config = function()
-      -- Mason setup
       require("mason").setup({
         ui = {
           border = "rounded",
@@ -172,102 +173,41 @@ require("lazy").setup({
         },
       })
 
-      -- Install language servers
       require("mason-lspconfig").setup({
         ensure_installed = {
-          "lua_ls",      -- Lua
-          "marksman",    -- Markdown
-          "vimls",       -- Vim
+          "lua_ls",
+          "marksman",
+          "vimls",
         },
         automatic_installation = true,
       })
 
-      -- Capabilities for autocompletion
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-      -- Common on_attach function
-      local on_attach = function(client, bufnr)
-        vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-      end
+      vim.api.nvim_create_autocmd("LspAttach", {
+        callback = function(args)
+          vim.bo[args.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
+        end,
+      })
 
-      -- ========================================================================
-      -- LSP SERVER CONFIGURATIONS (Using new API)
-      -- ========================================================================
-
-      -- Check Neovim version and use appropriate API
-      local nvim_version = vim.version()
-      local use_new_api = nvim_version.major > 0 or (nvim_version.major == 0 and nvim_version.minor >= 11)
-
-      if use_new_api then
-        -- Neovim 0.11+ : Use vim.lsp.config
-        local lsp_config = vim.lsp.config
-
-        -- Lua LSP
-        lsp_config("lua_ls", {
-          capabilities = capabilities,
-          cmd = { "lua-language-server" },
-          filetypes = { "lua" },
-          root_markers = { ".git", ".luarc.json", ".luarc.jsonc" },
-          settings = {
-            Lua = {
-              diagnostics = { globals = { "vim" } },
-              workspace = {
-                library = vim.api.nvim_get_runtime_file("", true),
-                checkThirdParty = false,
-              },
-              telemetry = { enable = false },
-              hint = { enable = true },
+      vim.lsp.config("lua_ls", {
+        capabilities = capabilities,
+        settings = {
+          Lua = {
+            diagnostics = { globals = { "vim" } },
+            workspace = {
+              library = vim.api.nvim_get_runtime_file("", true),
+              checkThirdParty = false,
             },
+            telemetry = { enable = false },
+            hint = { enable = true },
           },
-        })
+        },
+      })
 
-        -- Markdown LSP
-        lsp_config("marksman", {
-          capabilities = capabilities,
-          cmd = { "marksman", "server" },
-          filetypes = { "markdown", "md" },
-        })
-
-        -- Vim LSP
-        lsp_config("vimls", {
-          capabilities = capabilities,
-          cmd = { "vim-language-server", "--stdio" },
-          filetypes = { "vim" },
-        })
-
-      else
-        -- Neovim < 0.11: Use old lspconfig API
-        local lspconfig = require("lspconfig")
-
-        lspconfig.lua_ls.setup({
-          on_attach = on_attach,
-          capabilities = capabilities,
-          settings = {
-            Lua = {
-              diagnostics = { globals = { "vim" } },
-              workspace = {
-                library = vim.api.nvim_get_runtime_file("", true),
-                checkThirdParty = false,
-              },
-              telemetry = { enable = false },
-            },
-          },
-        })
-
-        lspconfig.marksman.setup({
-          on_attach = on_attach,
-          capabilities = capabilities,
-        })
-
-        lspconfig.vimls.setup({
-          on_attach = on_attach,
-          capabilities = capabilities,
-        })
-      end
-
-      -- ========================================================================
-      -- DIAGNOSTIC CONFIGURATION
-      -- ========================================================================
+      vim.lsp.config("marksman", { capabilities = capabilities })
+      vim.lsp.config("vimls", { capabilities = capabilities })
+      vim.lsp.enable({ "lua_ls", "marksman", "vimls" })
 
       vim.diagnostic.config({
         virtual_text = {
@@ -287,22 +227,6 @@ require("lazy").setup({
         },
       })
 
-      -- Diagnostic signs
-      local signs = { 
-        Error = " ", 
-        Warn = " ", 
-        Hint = "󰌶 ", 
-        Info = " " 
-      }
-      for type, icon in pairs(signs) do
-        local hl = "DiagnosticSign" .. type
-        vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-      end
-
-      -- ========================================================================
-      -- SPELL CHECK CONFIGURATION
-      -- ========================================================================
-
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "markdown", "text", "gitcommit" },
         callback = function()
@@ -311,43 +235,33 @@ require("lazy").setup({
         end,
       })
 
-      -- ========================================================================
-      -- MARKDOWN SPECIFIC SETTINGS (Disable false positives)
-      -- ========================================================================
-
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "markdown" },
         callback = function(args)
-          -- Only show warnings and errors (hide info/hints)
           vim.diagnostic.config({
             virtual_text = {
-              severity = { min = vim.diagnostic.severity.WARN }
+              severity = { min = vim.diagnostic.severity.WARN },
             },
           }, args.buf)
         end,
       })
 
-      -- ========================================================================
-      -- HANDLERS (Better LSP UI)
-      -- ========================================================================
+      vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+        border = "rounded",
+      })
 
-      vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-        vim.lsp.handlers.hover, {
-          border = "rounded",
-        }
-      )
-
-      vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-        vim.lsp.handlers.signature_help, {
-          border = "rounded",
-        }
-      )
+      vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
+        border = "rounded",
+      })
     end,
-  }, -- ============================================================================
+  },
+
+  -- ============================================================================
   -- AUTOCOMPLETION
   -- ============================================================================
   {
     "hrsh7th/nvim-cmp",
+    cond = not_vscode,
     event = "InsertEnter",
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
@@ -402,7 +316,7 @@ require("lazy").setup({
   },
 
   -- ============================================================================
-  -- COMMENT
+  -- COMMENT / SURROUND / LEAP
   -- ============================================================================
   {
     "numToStr/Comment.nvim",
@@ -411,10 +325,6 @@ require("lazy").setup({
       require("Comment").setup()
     end,
   },
-
-  -- ============================================================================
-  -- SURROUND
-  -- ============================================================================
   {
     "kylechui/nvim-surround",
     event = { "BufReadPost", "BufNewFile" },
@@ -422,22 +332,18 @@ require("lazy").setup({
       require("nvim-surround").setup()
     end,
   },
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {},
+  },
 
   -- ============================================================================
-  -- LEAP (Motion like easymotion/sneak)
-  -- ============================================================================
-  -- {
-  --   "ggandor/leap.nvim",
-  --   config = function()
-  --     require("leap").add_default_mappings()
-  --   end,
-  -- },
-
-  -- ============================================================================
-  -- GITSIGNS (Git integration)
+  -- GIT / STATUSLINE
   -- ============================================================================
   {
     "lewis6991/gitsigns.nvim",
+    cond = not_vscode,
     event = { "BufReadPre", "BufNewFile" },
     config = function()
       require("gitsigns").setup({
@@ -451,17 +357,14 @@ require("lazy").setup({
       })
     end,
   },
-
-  -- ============================================================================
-  -- LUALINE (Statusline)
-  -- ============================================================================
   {
     "nvim-lualine/lualine.nvim",
+    cond = not_vscode,
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("lualine").setup({
         options = {
-          theme = "tokyonight",
+          theme = "vscode",
           component_separators = { left = "|", right = "|" },
           section_separators = { left = "", right = "" },
         },
@@ -470,34 +373,28 @@ require("lazy").setup({
   },
 
   -- ============================================================================
-  -- MISC PLUGINS
+  -- MISC
   -- ============================================================================
-  
-  -- Highlight yanked text
   {
     "machakann/vim-highlightedyank",
     event = "TextYankPost",
   },
-
-  -- Multiple cursors
   {
     "mg979/vim-visual-multi",
     branch = "master",
     event = { "BufReadPost", "BufNewFile" },
   },
-
-  -- Which-key (shows keybindings)
   {
     "folke/which-key.nvim",
+    cond = not_vscode,
     event = "VeryLazy",
     config = function()
       require("which-key").setup()
     end,
   },
-
-  -- Zen mode
   {
     "folke/zen-mode.nvim",
+    cond = not_vscode,
     cmd = "ZenMode",
     config = function()
       require("zen-mode").setup({
@@ -511,8 +408,6 @@ require("lazy").setup({
       })
     end,
   },
-
-  -- Auto pairs
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
@@ -520,24 +415,24 @@ require("lazy").setup({
       require("nvim-autopairs").setup()
     end,
   },
-
-  -- Indent guides
   {
     "lukas-reineke/indent-blankline.nvim",
+    cond = not_vscode,
     event = { "BufReadPost", "BufNewFile" },
     main = "ibl",
     config = function()
       require("ibl").setup({
-        indent = {
-          char = "│",
-        },
-        scope = {
-          enabled = false,
-        },
+        indent = { char = "│" },
+        scope = { enabled = false },
       })
     end,
   },
-
+  {
+    "ellisonleao/glow.nvim",
+    cond = not_vscode,
+    config = true,
+    cmd = "Glow",
+  },
 }, {
   ui = {
     border = "rounded",
@@ -554,5 +449,3 @@ require("lazy").setup({
     },
   },
 })
-
-print("✓ Plugins loaded")
