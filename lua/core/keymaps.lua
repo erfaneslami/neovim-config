@@ -41,10 +41,16 @@ keymap("v", "K", ":m '<-2<CR>gv=gv", opts)
 keymap("n", "<A-n>", ":tabnext<CR>", opts)
 keymap("n", "<A-p>", ":tabprev<CR>", opts)
 
-keymap("n", "]e", vim.diagnostic.goto_next, opts)
-keymap("n", "[e", vim.diagnostic.goto_prev, opts)
+keymap("n", "]e", function()
+  vim.diagnostic.jump({ count = 1, float = true })
+end, opts)
+keymap("n", "[e", function()
+  vim.diagnostic.jump({ count = -1, float = true })
+end, opts)
 keymap("n", "<leader>ed", vim.diagnostic.open_float, opts)
-keymap("n", "<leader>ef", vim.diagnostic.goto_next, opts)
+keymap("n", "<leader>ef", function()
+  vim.diagnostic.jump({ count = 1, float = true })
+end, opts)
 
 -- ============================================================================
 -- LEADER + C: COMMENTS

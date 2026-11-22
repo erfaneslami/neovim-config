@@ -1,6 +1,6 @@
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
   vim.notify("Installing lazy.nvim...", vim.log.levels.INFO)
   vim.fn.system({
     "git",
@@ -209,6 +209,9 @@ require("lazy").setup({
       vim.lsp.config("vimls", { capabilities = capabilities })
       vim.lsp.enable({ "lua_ls", "marksman", "vimls" })
 
+      -- Global float border for LSP hover / signature help (replaces vim.lsp.with)
+      vim.o.winborder = "rounded"
+
       vim.diagnostic.config({
         virtual_text = {
           spacing = 4,
@@ -221,7 +224,7 @@ require("lazy").setup({
         severity_sort = true,
         float = {
           border = "rounded",
-          source = "always",
+          source = true,
           header = "",
           prefix = "",
         },
@@ -244,14 +247,6 @@ require("lazy").setup({
             },
           }, args.buf)
         end,
-      })
-
-      vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-        border = "rounded",
-      })
-
-      vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
-        border = "rounded",
       })
     end,
   },
